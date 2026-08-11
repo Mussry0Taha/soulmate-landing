@@ -4,12 +4,12 @@ body{
   color: #FDFFFC;
   text-align: center;
   background-color: #011627;
-  background-image: url('img/Back_img.jpg');
+  background-image: url('/img/Back_img.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  border: 60px solid #2EC4B6;
+  border: 60px solid #a1c6c2;
   border-top: 0px;
   /*border-bottom: 0px;*/
   margin: 0px;
