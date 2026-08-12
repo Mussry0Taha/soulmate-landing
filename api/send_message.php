@@ -1,0 +1,1 @@
+<?php require 'config.php';$from=requireLogin();$d=input();$to=(int)($d['receiver_id']??0);$body=trim($d['message']??'');if(!$to||!$body)respond(['success'=>false,'message'=>'Message required.'],422);$s=$pdo->prepare('INSERT INTO messages (sender_id,receiver_id,body) VALUES (?,?,?)');$s->execute([$from,$to,$body]);respond(['success'=>true,'id'=>(int)$pdo->lastInsertId()]);

@@ -1,0 +1,1 @@
+<?php require 'config.php';$me=requireLogin();if(empty($_SESSION['admin_access']))respond(['success'=>false,'message'=>'Admin access required.'],403);$id=(int)(input()['id']??0);if(!$id||$id===$me)respond(['success'=>false,'message'=>'Invalid user.'],422);$pdo->prepare('DELETE FROM users WHERE id=?')->execute([$id]);respond(['success'=>true]);

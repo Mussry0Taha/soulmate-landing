@@ -1,0 +1,1 @@
+<?php require 'config.php';$id=requireLogin();$d=input();$liked=(int)($d['user_id']??0);if(!$liked||$liked===$id)respond(['success'=>false,'message'=>'Invalid user.'],422);$s=$pdo->prepare('INSERT IGNORE INTO likes (user_id,liked_id) VALUES (?,?)');$s->execute([$id,$liked]);respond(['success'=>true]);

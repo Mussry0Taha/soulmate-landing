@@ -1,0 +1,1 @@
+<?php require 'config.php';$id=(int)($_GET['id']??requireLogin());$s=$pdo->prepare('SELECT id,name,email,bio,location,age,avatar FROM users WHERE id=?');$s->execute([$id]);respond(['success'=>true,'user'=>$s->fetch(PDO::FETCH_ASSOC)]);

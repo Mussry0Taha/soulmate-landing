@@ -1,0 +1,1 @@
+<?php require 'config.php';$id=requireLogin();$d=input();$s=$pdo->prepare('UPDATE users SET name=?, bio=?, location=?, age=? WHERE id=?');$s->execute([trim($d['name']??''),trim($d['bio']??''),trim($d['location']??''),(int)($d['age']??0),$id]);respond(['success'=>true]);

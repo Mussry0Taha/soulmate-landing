@@ -1,0 +1,1 @@
+<?php require 'config.php';$me=requireLogin();$other=(int)($_GET['user_id']??0);$s=$pdo->prepare('SELECT id,sender_id,receiver_id,body,created_at FROM messages WHERE (sender_id=? AND receiver_id=?) OR (sender_id=? AND receiver_id=?) ORDER BY created_at');$s->execute([$me,$other,$other,$me]);respond(['success'=>true,'messages'=>$s->fetchAll(PDO::FETCH_ASSOC)]);
