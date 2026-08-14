@@ -1,4 +1,47 @@
-<?php require 'config.php';
-$d=input();$name=trim($d['name']??'');$email=filter_var($d['email']??'',FILTER_VALIDATE_EMAIL);$password=$d['password']??'';
-if(!$name||!$email||strlen($password)<6)respond(['success'=>false,'message'=>'Enter a name, valid email, and 6+ character password.'],422);
-try{$s=$pdo->prepare('INSERT INTO users (name,email,password) VALUES (?,?,?)');$s->execute([$name,$email,password_hash($password,PASSWORD_DEFAULT)]);$id=(int)$pdo->lastInsertId();$columns=$pdo->query('DESCRIBE users')->fetchAll(PDO::FETCH_COLUMN);$fields=['dob','gender','looking_for','bio','avatar'];$set=[];$values=[];foreach($fields as $field)if(in_array($field,$columns,true)&&isset($d[$field])){$set[]="$field=?";$values[]=$field==='avatar'?basename((string)$d[$field]):trim((string)$d[$field]);}if($set){$values[]=$id;$pdo->prepare('UPDATE users SET '.implode(',',$set).' WHERE id=?')->execute($values);}$_SESSION['user_id']=$id;respond(['success'=>true,'user_id'=>$id]);}catch(PDOException $e){respond(['success'=>false,'message'=>'That email is already registered.'],409);}
+<?php
+require_once 'config.php';
+
+$data = json_decode(file_get_contents('php://input'), true);
+
+// Validate required fields
+$required = ['name', 'email', 'password', 'dob', 'gender', 'preference'];
+foreach ($required as $field) {
+    if (empty($data[$field])) {
+        echo json_encode(['success' => false, 'message' => "Missing field: $field"]);
+        exit();
+    }
+}
+
+$name = trim($data['name']);
+$email = trim($data['email']);
+$password = password_hash($data['password'], PASSWORD_DEFAULT);
+$dob = $data['dob'];
+$gender = $data['gender'];
+$preference = $data['preference'];
+$bio = trim($data['bio'] ?? '');
+$location = trim($data['location'] ?? '');
+
+try {
+    // Check if email already exists
+    $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+    $check->execute([$email]);
+    if ($check->fetch()) {
+        echo json_encode(['success' => false, 'message' => 'Email already registered']);
+        exit();
+    }
+
+    // Insert new user
+    $sql = "INSERT INTO users (name, email, password, dob, gender, preference, bio, location) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$name, $email, $password, $dob, $gender, $preference, $bio, $location]);
+
+    // Auto-login the user
+    $_SESSION['user_id'] = $pdo->lastInsertId();
+
+    echo json_encode(['success' => true, 'message' => 'Account created successfully']);
+
+} catch(PDOException $e) {
+    echo json_encode(['success' => false, 'message' => 'Registration failed: ' . $e->getMessage()]);
+}
+?>

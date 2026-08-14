@@ -1,2 +1,100 @@
-<?php // □ Sidebar: Avatar, User Name, Email. □ Tabs: My Profile, Settings. □ Editable Name, Bio, Location. □ Save & Cancel. □ Logout sidebar. declare(strict_types=1); ?>
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Profile · Soulmate</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/dashboard.css"></head><body><nav class="app-nav"><a class="brand" href="dashboard.php">soulmate<span>.</span></a><div><a href="matches.php">Discover</a><a href="chat.php">Messages</a></div></nav><main class="app"><div class="layout"><aside class="sidebar"><img id="sidebar-avatar" class="profile-photo" src="assets/default-avatar.png" alt="Profile picture"><h2 id="profile-name">Your profile</h2><p id="profile-email" class="muted">Loading…</p><a class="side-link active" href="#profile">My Profile</a><a class="side-link" href="#settings">Settings</a><button class="btn-secondary logout" onclick="logout()">Logout</button></aside><section class="panel" id="profile"><div class="tabs"><button class="tab active" data-tab="profile">My Profile</button><button class="tab" data-tab="settings">Settings</button></div><div class="tab-panel" data-panel="profile"><h1>Edit profile</h1><form id="profile-form"><label class="field">Name<input name="name" required></label><label class="field">Location<input name="location"></label><label class="field">Bio<textarea name="bio" rows="5"></textarea></label><div class="form-actions"><button class="btn-primary">Save Changes</button><button class="btn-secondary" type="button" onclick="loadProfile()">Cancel</button></div></form></div><div class="tab-panel hidden" data-panel="settings"><h1>Settings</h1><p class="muted">Account preferences will appear here.</p></div></section></div></main><script src="js/script.js"></script><script src="js/dashboard.js"></script></body></html>
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulMate · Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700,800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="index.php" class="logo">Soul<span>Mate</span> 💕</a>
+            <ul class="nav-links">
+                <li><a href="dashboard.php" class="active">Dashboard</a></li>
+                <li><a href="matches.php">Matches</a></li>
+                <li><a href="chat.php">Messages</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <img src="assets/default-avatar.png" alt="Avatar" class="sidebar-avatar" id="avatar">
+                <h3 id="profileName">Loading...</h3>
+                <p id="profileEmail">Loading...</p>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.php" class="active">👤 My Profile</a></li>
+                    <li><a href="matches.php">❤️ Matches</a></li>
+                    <li><a href="chat.php">💬 Messages</a></li>
+                    <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="profile-header">
+                    <img src="assets/default-avatar.png" alt="Avatar" id="avatarLarge">
+                    <div>
+                        <h2 id="profileNameLarge">Loading...</h2>
+                        <p id="profileEmailLarge">Loading...</p>
+                    </div>
+                </div>
+
+                <form class="dashboard-form" onsubmit="event.preventDefault(); updateProfile();">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="editName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>About You (Bio)</label>
+                        <textarea id="editBio" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location (City)</label>
+                        <input type="text" id="editLocation">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="editGender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="non-binary">Non-binary</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Looking for</label>
+                        <select id="editPreference">
+                            <option value="men">Men</option>
+                            <option value="women">Women</option>
+                            <option value="everyone">Everyone</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Save Changes 💾</button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

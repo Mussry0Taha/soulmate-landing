@@ -1,5 +1,55 @@
-let profileData={};
-async function loadProfile(){const {user}=await api('get_profile.php');profileData=user||{};const form=document.querySelector('#profile-form');for(const [key,value] of Object.entries(profileData)){if(form?.elements[key])form.elements[key].value=value??''}document.querySelector('#profile-name').textContent=profileData.name||'Your profile';document.querySelector('#profile-email').textContent=profileData.email||'';if(profileData.avatar)document.querySelector('#sidebar-avatar').src=`assets/${encodeURIComponent(profileData.avatar)}`}
-async function updateProfile(){const form=document.querySelector('#profile-form');await api('update_profile.php',{method:'POST',body:JSON.stringify(Object.fromEntries(new FormData(form)))});showToast('Profile saved.');loadProfile()}
-function uploadPhoto(){const input=document.querySelector('#dashboard-photo');const file=input?.files[0];if(!file)return;document.querySelector('#sidebar-avatar').src=URL.createObjectURL(file);showToast(`Photo set to ${file.name}.`)}
-document.querySelector('#profile-form')?.addEventListener('submit',e=>{e.preventDefault();updateProfile().catch(error=>showToast(error.message,'error'))});document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===tab));document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.toggle('hidden',panel.dataset.panel!==tab.dataset.tab))}));loadProfile().catch(()=>location.href='login.php');
+let currentUser = null;
+
+async function loadProfile() {
+    const user = await checkSession();
+    if (!user) return;
+    currentUser = user;
+
+    // Populate profile fields
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileEmail').textContent = user.email;
+    document.getElementById('avatar').src = user.profile_pic || 'assets/default-avatar.png';
+    
+    // Fill form fields (edit mode)
+    document.getElementById('editName').value = user.name || '';
+    document.getElementById('editBio').value = user.bio || '';
+    document.getElementById('editLocation').value = user.location || '';
+    document.getElementById('editGender').value = user.gender || '';
+    document.getElementById('editPreference').value = user.preference || '';
+}
+
+async function updateProfile() {
+    const name = document.getElementById('editName').value.trim();
+    const bio = document.getElementById('editBio').value.trim();
+    const location = document.getElementById('editLocation').value.trim();
+    const gender = document.getElementById('editGender').value;
+    const preference = document.getElementById('editPreference').value;
+
+    if (!name) {
+        showToast('Name is required', 'error');
+        return;
+    }
+
+    const payload = { name, bio, location, gender, preference };
+
+    try {
+        const response = await fetch('api/update_profile.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showToast('Profile updated successfully!', 'success');
+            loadProfile(); // Reload with new data
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (err) {
+        showToast('Network error. Please try again.', 'error');
+    }
+}
+
+// Load profile when page loads
+document.addEventListener('DOMContentLoaded', loadProfile);
